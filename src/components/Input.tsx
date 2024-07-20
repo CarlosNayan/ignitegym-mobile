@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import { TextInputProps } from "react-native";
 import styled from "styled-components/native";
 
-interface InputProps extends TextInputProps {
-  isFocused?: boolean;
-}
+interface InputProps extends TextInputProps {}
 
 export function Input(props: InputProps) {
   const [isFocused, setIsFocused] = useState(false);

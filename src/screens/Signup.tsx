@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import styled from "styled-components/native";
 
-export function Signin() {
+export function Signup() {
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
 
   useEffect(() => {
@@ -40,18 +40,18 @@ export function Signin() {
         <Center>
           <LogoSvg />
           <Text>Treine sua mente e seu corpo</Text>
-          <Heading>Acesse sua conta</Heading>
+          <Heading>Criar sua conta</Heading>
         </Center>
+        <Input placeholder="Nome" />
         <Input
           keyboardType="email-address"
           autoCapitalize="none"
           placeholder="E-mail"
         />
-        <Input secureTextEntry placeholder="Senha" />
-        <Button title="Acessar" />
+        <Input secureTextEntry placeholder="senha" />
+        <Button title="Criar" />
         <Footer>
-          <Text>Não tem uma conta?</Text>
-          <Button title="Criar nova conta" type="OUTLINE" />
+          <Button title="Voltar para o login" type="OUTLINE" />
         </Footer>
       </Container>
     </ScrollView>
@@ -86,8 +86,7 @@ const Heading = styled.Text`
   color: ${({ theme }) => theme.colors.gray[100]};
   font-size: ${({ theme }) => theme.fontSizes.lg};
   font-family: ${({ theme }) => theme.fonts.heading};
-  margin-top: 50%;
-  margin-bottom: 10px;
+  margin-top: 40%;
 `;
 
 const Text = styled.Text`
