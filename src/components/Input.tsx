@@ -32,6 +32,6 @@ const TextInput = styled.TextInput.attrs(({ theme }) => ({
   color: ${({ theme }) => theme.colors.gray[100]};
   border-width: 1px;
   border-color: ${({ theme, isFocused }) =>
-    isFocused ? theme.colors.green[500] : "transparent"};
+    isFocused ? theme.colors.green[500] : theme.colors.gray[400]};
   border-radius: 5px;
 `;

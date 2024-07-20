@@ -2,17 +2,15 @@ import BackgroundImg from "@assets/background.png";
 import LogoSvg from "@assets/logo.svg";
 import { Button } from "@components/Button";
 import { Input } from "@components/Input";
+import { useNavigation } from "@react-navigation/native";
 import { useEffect, useState } from "react";
-import {
-  Keyboard,
-  Platform,
-  ScrollView,
-  TouchableWithoutFeedback,
-} from "react-native";
+import { Keyboard, Platform, ScrollView } from "react-native";
 import styled from "styled-components/native";
 
-export function Signin() {
+export function SignUp() {
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -31,7 +29,7 @@ export function Signin() {
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} accessible={false}>
-      <Container keyBoardIsVisible={keyboardIsVisible} platform={Platform.OS}>
+      <Container keyBoardIsVisible={keyboardIsVisible}>
         <Background
           source={BackgroundImg}
           defaultSource={BackgroundImg}
@@ -40,38 +38,40 @@ export function Signin() {
         <Center>
           <LogoSvg />
           <Text>Treine sua mente e seu corpo</Text>
-          <Heading>Acesse sua conta</Heading>
+          <Heading>Criar sua conta</Heading>
         </Center>
+        <Input placeholder="Nome" />
         <Input
           keyboardType="email-address"
           autoCapitalize="none"
           placeholder="E-mail"
         />
         <Input secureTextEntry placeholder="Senha" />
-        <Button title="Acessar" />
+        <Button title="Criar" />
         <Footer>
-          <Text>Não tem uma conta?</Text>
-          <Button title="Criar nova conta" type="OUTLINE" />
+          <Button
+            title="Voltar para o login"
+            type="OUTLINE"
+            onPress={() => navigation.goBack()}
+          />
         </Footer>
       </Container>
     </ScrollView>
   );
 }
 
-const Container = styled.View<{ keyBoardIsVisible: boolean; platform: string }>`
+const Container = styled.View<{ keyBoardIsVisible: boolean }>`
   flex: 8;
-  background-color: ${({ theme }) => theme.colors.gray[700]};
   padding: 24px;
   gap: 20px;
-  padding-bottom: ${({ keyBoardIsVisible, platform }) =>
-    keyBoardIsVisible && platform === "ios" ? "100%" : "24px"};
+  padding-bottom: ${({ keyBoardIsVisible }) =>
+    keyBoardIsVisible ? "100%" : "24px"};
 `;
 
 const Background = styled.Image`
   flex: 1;
   position: absolute;
   top: 0;
-  background-color: ${({ theme }) => theme.colors.gray[700]};
   resize: contain;
 `;
 
@@ -86,8 +86,7 @@ const Heading = styled.Text`
   color: ${({ theme }) => theme.colors.gray[100]};
   font-size: ${({ theme }) => theme.fontSizes.lg};
   font-family: ${({ theme }) => theme.fonts.heading};
-  margin-top: 50%;
-  margin-bottom: 10px;
+  margin-top: 40%;
 `;
 
 const Text = styled.Text`

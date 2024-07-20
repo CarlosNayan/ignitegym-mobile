@@ -3,7 +3,7 @@ import {
   Roboto_700Bold,
   useFonts,
 } from "@expo-google-fonts/roboto";
-import { Signin } from "@screens/Signin";
+import { Routes } from "@routes/index";
 import { StatusBar, View } from "react-native";
 import { Loading } from "src/components/Loading";
 import { theme } from "src/theme/index";
@@ -19,7 +19,7 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <View style={{ flex: 1, backgroundColor: theme.colors.gray[700] }}>
         <StatusBar translucent barStyle="light-content" />
-        {fontsLoaded ? <Signin /> : <Loading />}
+        {fontsLoaded ? <Routes /> : <Loading />}
       </View>
     </ThemeProvider>
   );
