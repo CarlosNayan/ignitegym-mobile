@@ -17,10 +17,8 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <View style={{ flex: 1, backgroundColor: theme.colors.gray[700] }}>
-        <StatusBar translucent barStyle="light-content" />
-        {fontsLoaded ? <Routes /> : <Loading />}
-      </View>
+      <StatusBar barStyle="light-content" />
+      {fontsLoaded ? <Routes /> : <Loading />}
     </ThemeProvider>
   );
 }
