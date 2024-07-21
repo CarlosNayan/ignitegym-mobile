@@ -29,12 +29,7 @@ const HStack = styled.View`
   padding: 24px;
   flex-direction: row;
   background-color: ${({ theme }) => theme.colors.gray[600]};
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
   align-items: center;
-  z-index: -1;
 `;
 
 const VStack = styled.View`
@@ -58,3 +53,4 @@ const LogoutIcon = styled(MaterialIcons).attrs(({ theme }) => ({
   color: theme.colors.gray[100],
   size: 24,
 }))``;
+
