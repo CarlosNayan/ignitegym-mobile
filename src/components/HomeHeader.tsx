@@ -10,7 +10,7 @@ export function HomeHeader() {
       <UserPhoto
         size={64}
         source={{
-          uri: "https://media.licdn.com/dms/image/D4D03AQF-lH5Y3cdsbA/profile-displayphoto-shrink_200_200/0/1679594832410?e=1727308800&v=beta&t=jWOyItd2nySCHE4H17c0AhFTsDIaXbhnyWbtD1jy-Bw",
+          uri: "https://github.com/carlosnayan.png",
         }}
         alt="Imagem do usuário"
         marginRight={8}
