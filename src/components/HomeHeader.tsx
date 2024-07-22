@@ -27,6 +27,7 @@ export function HomeHeader() {
 }
 const HStack = styled.View`
   padding: 24px;
+  padding-top: 48px;
   flex-direction: row;
   background-color: ${({ theme }) => theme.colors.gray[600]};
   align-items: center;
@@ -34,7 +35,7 @@ const HStack = styled.View`
 
 const VStack = styled.View`
   align-items: flex-start;
-  flex: 1
+  flex: 1;
 `;
 
 const Text = styled.Text`
@@ -53,4 +54,3 @@ const LogoutIcon = styled(MaterialIcons).attrs(({ theme }) => ({
   color: theme.colors.gray[100],
   size: 24,
 }))``;
-

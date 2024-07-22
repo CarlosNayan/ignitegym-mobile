@@ -24,7 +24,7 @@ export type AppNavigatorRoutesProps = BottomTabBarButtonProps & AppRoutes;
 const { Navigator, Screen } = createBottomTabNavigator<AppRoutes>();
 
 export function AppRoutes() {
-  const iconSize = 32;
+  const iconSize = 24;
   const { colors } = useTheme();
 
   return (
@@ -37,7 +37,6 @@ export function AppRoutes() {
         tabBarStyle: {
           backgroundColor: colors.gray[600],
           borderTopWidth: 0,
-          height: Platform.OS === "android" ? 60 : 96,
           paddingTop: 5,
         },
       }}
@@ -47,7 +46,7 @@ export function AppRoutes() {
         component={Home}
         options={{
           tabBarIcon: ({ color }) => (
-            <HomeSvg fill={color} width={32} height={32} />
+            <HomeSvg fill={color} width={iconSize} height={iconSize} />
           ),
         }}
       />
