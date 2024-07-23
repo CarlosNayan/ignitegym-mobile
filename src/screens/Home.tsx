@@ -4,9 +4,17 @@ import { HomeHeader } from "@components/HomeHeader";
 import { FlatList, View, ListRenderItem, FlatListProps } from "react-native";
 import styled from "styled-components/native";
 import { ExerciseCard } from "@components/ExerciseCard";
+import { useNavigation } from "@react-navigation/native";
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 export function Home() {
   const [selectedGroup, setSelectedGroup] = React.useState<string | null>(null);
+
+  const navigate = useNavigation<AppNavigatorRoutesProps>();
+
+  function handleNavigation() {
+    navigate.navigate("Exercise");
+  }
 
   const groups: string[] = ["Costas", "Bíceps", "Tríceps", "Ombro"];
 
@@ -48,7 +56,7 @@ export function Home() {
           keyExtractor={(item: { id: string; name: string }) =>
             `${item.id}-${item.name}`
           }
-          renderItem={({}) => <ExerciseCard />}
+          renderItem={({}) => <ExerciseCard onPress={handleNavigation} />}
         />
       </Container>
     </>

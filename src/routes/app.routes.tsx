@@ -17,6 +17,7 @@ type AppRoutes = {
   Profile: undefined;
   History: undefined;
   Exercise: undefined;
+  navigate: (screen: keyof AppNavigatorRoutesProps) => void;
 };
 
 export type AppNavigatorRoutesProps = BottomTabBarButtonProps & AppRoutes;
