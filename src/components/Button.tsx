@@ -4,17 +4,21 @@ import styled from "styled-components/native";
 interface Props extends TouchableOpacityProps {
   title: string;
   type?: "SOLID" | "OUTLINE";
+  marginTop?: number;
 }
 
-export function Button({ title, type = "SOLID", ...rest }: Props) {
+export function Button({ title, type = "SOLID", marginTop, ...rest }: Props) {
   return (
-    <Container type={type} {...rest}>
+    <Container type={type} marginTop={marginTop} {...rest}>
       <Title>{title}</Title>
     </Container>
   );
 }
 
-const Container = styled(TouchableOpacity)<{ type?: "SOLID" | "OUTLINE" }>`
+const Container = styled(TouchableOpacity)<{
+  type?: "SOLID" | "OUTLINE";
+  marginTop?: number;
+}>`
   flex: 1;
   min-height: 56px;
   max-height: 56px;
@@ -25,6 +29,8 @@ const Container = styled(TouchableOpacity)<{ type?: "SOLID" | "OUTLINE" }>`
   border-radius: 6px;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  margin-top: ${({ marginTop }) => marginTop || 0};
 `;
 
 const Title = styled.Text`

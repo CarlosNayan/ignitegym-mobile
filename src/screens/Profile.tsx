@@ -1,3 +1,5 @@
+import { Button } from "@components/Button";
+import { Input } from "@components/Input";
 import { ScreensHeader } from "@components/ScreensHeader";
 import { SkeletonComponent } from "@components/SkelletonElement";
 import { UserPhoto } from "@components/UserPhoto";
@@ -33,6 +35,36 @@ export function Profile() {
             marginRight={8}
           />
         )}
+        <ProfileButton>
+          <TextProfileButton> Alterar imagem</TextProfileButton>
+        </ProfileButton>
+        <Input placeholder="Nome" bgColor={colors.gray[600]} width="100%" />
+        <Input
+          placeholder="Email"
+          bgColor={colors.gray[650]}
+          width="100%"
+          editable={false}
+        />
+        <Text>Alterar senha</Text>
+        <Input
+          placeholder="Senha antiga"
+          bgColor={colors.gray[600]}
+          width="100%"
+          secureTextEntry
+        />
+        <Input
+          placeholder="Nova senha"
+          bgColor={colors.gray[600]}
+          width="100%"
+          secureTextEntry
+        />
+        <Input
+          placeholder="Confirme a nova senha"
+          bgColor={colors.gray[600]}
+          width="100%"
+          secureTextEntry
+        />
+        <Button marginTop={24} title="Salvar alterações" type="SOLID" />
       </Container>
     </>
   );
@@ -40,9 +72,31 @@ export function Profile() {
 const Container = styled.ScrollView.attrs({
   contentContainerStyle: {
     alignItems: "center",
+    paddingBottom: 56,
   },
 })`
   flex: 1;
   padding: 24px;
   gap: 20px;
+`;
+
+const ProfileButton = styled.TouchableOpacity``;
+
+const TextProfileButton = styled.Text`
+  color: ${({ theme }) => theme.colors.green[500]};
+  font-size: ${({ theme }) => theme.fontSizes.md};
+  font-family: ${({ theme }) => theme.fonts.heading};
+  margin-top: 8px;
+  margin-bottom: 24px;
+  transform: translateX(-8px);
+`;
+
+const Text = styled.Text`
+  color: ${({ theme }) => theme.colors.gray[100]};
+  font-size: ${({ theme }) => theme.fontSizes.md};
+  font-family: ${({ theme }) => theme.fonts.body};
+  margin-top: 24px;
+  margin-bottom: 24px;
+  text-align: start;
+  width: 100%;
 `;
