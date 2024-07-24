@@ -64,7 +64,7 @@ export function Profile() {
           width="100%"
           secureTextEntry
         />
-        <Button marginTop={24} title="Salvar alterações" type="SOLID" />
+        <Button marginTop={"24px"} title="Salvar alterações" type="SOLID" />
       </Container>
     </>
   );

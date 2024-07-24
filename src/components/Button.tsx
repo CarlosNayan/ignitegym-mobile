@@ -4,7 +4,7 @@ import styled from "styled-components/native";
 interface Props extends TouchableOpacityProps {
   title: string;
   type?: "SOLID" | "OUTLINE";
-  marginTop?: number;
+  marginTop?: string;
 }
 
 export function Button({ title, type = "SOLID", marginTop, ...rest }: Props) {
@@ -17,7 +17,7 @@ export function Button({ title, type = "SOLID", marginTop, ...rest }: Props) {
 
 const Container = styled(TouchableOpacity)<{
   type?: "SOLID" | "OUTLINE";
-  marginTop?: number;
+  marginTop?: string;
 }>`
   flex: 1;
   min-height: 56px;
