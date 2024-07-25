@@ -29,7 +29,10 @@ const VStack = styled.View`
   flex: 1;
 `;
 
-const Heading = styled.Text`
+const Heading = styled.Text.attrs({
+  numberOfLines: 1,
+  ellipsizeMode: "tail",
+})`
   color: ${({ theme }) => theme.colors.gray[100]};
   font-size: ${({ theme }) => theme.fontSizes.lg};
   font-family: ${({ theme }) => theme.fonts.heading};
@@ -38,6 +41,7 @@ const Heading = styled.Text`
 
 const Text = styled.Text.attrs({
   numberOfLines: 2,
+  ellipsizeMode: "tail",
 })`
   color: ${({ theme }) => theme.colors.gray[100]};
   font-size: ${({ theme }) => theme.fontSizes.sm};

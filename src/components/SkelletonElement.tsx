@@ -53,7 +53,6 @@ export function SkeletonComponent({
       style={{
         backgroundColor: backgroundColorInterpolation,
         borderRadius: borderRadius,
-        marginBottom: 10,
         height: height, // Convert string to number if possible
         width: width, // Convert string to number if possible
       }}

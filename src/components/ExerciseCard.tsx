@@ -42,7 +42,7 @@ const HStack = styled.View`
 `;
 
 const Image = styled.Image`
-  resize: center;
+  resize: cover;
   width: 64px;
   height: 64px;
   border-radius: 8px;

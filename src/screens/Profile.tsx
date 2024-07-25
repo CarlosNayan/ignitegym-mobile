@@ -35,7 +35,7 @@ export function Profile() {
             marginRight={8}
           />
         )}
-        <ProfileButton>
+        <ProfileButton onPress={() => setLoading(!loading)}>
           <TextProfileButton> Alterar imagem</TextProfileButton>
         </ProfileButton>
         <Input placeholder="Nome" bgColor={colors.gray[600]} width="100%" />

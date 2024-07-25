@@ -11,11 +11,7 @@ export function Home() {
   const [selectedGroup, setSelectedGroup] = React.useState<string | null>(null);
 
   const navigate = useNavigation<AppNavigatorRoutesProps>();
-
-  function handleNavigation() {
-    navigate.navigate("Exercise");
-  }
-
+  
   const groups: string[] = ["Costas", "Bíceps", "Tríceps", "Ombro"];
 
   const exercises = [
@@ -56,7 +52,9 @@ export function Home() {
           keyExtractor={(item: { id: string; name: string }) =>
             `${item.id}-${item.name}`
           }
-          renderItem={({}) => <ExerciseCard onPress={handleNavigation} />}
+          renderItem={({}) => (
+            <ExerciseCard onPress={() => navigate.navigate("Exercise")} />
+          )}
         />
       </Container>
     </>
