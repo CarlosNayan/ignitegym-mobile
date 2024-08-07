@@ -5,13 +5,56 @@ import { SkeletonComponent } from "@components/SkelletonElement";
 import { UserPhoto } from "@components/UserPhoto";
 import { useState } from "react";
 import styled, { useTheme } from "styled-components/native";
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
+import { Alert } from "react-native";
 
 export function Profile() {
   const [loading, setLoading] = useState(false);
+  const [userPhoto, setUserPhoto] = useState<string | null>(
+    "https://github.com/carlosnayan.png"
+  );
 
   const PHOTO_SIZE = 128;
 
   const { colors } = useTheme();
+
+  async function handleUserPhotoSelect() {
+    try {
+      const selectedPhoto = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 1,
+        aspect: [4, 4],
+      });
+      setLoading(true);
+
+      if (selectedPhoto.canceled) return;
+
+      if (selectedPhoto.assets[0].uri) {
+        const photoInfo = await FileSystem.getInfoAsync(
+          selectedPhoto.assets[0].uri
+        );
+        if (photoInfo && "size" in photoInfo) {
+          if (photoInfo.size / 1024 / 1024 > 5) {
+            Alert.alert("Essa imagem é muito grande. Escolha uma de até 5MB.");
+            return;
+          }
+        }
+      } else {
+        return Alert.alert("Não foi possível selecionar a imagem.");
+      }
+
+      setUserPhoto(selectedPhoto.assets[0].uri);
+    } catch (error) {
+      console.error(
+        "screens/Profile.tsx > handleUserPhotoSelect > error",
+        error
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <>
@@ -28,14 +71,12 @@ export function Profile() {
         ) : (
           <UserPhoto
             size={PHOTO_SIZE}
-            source={{
-              uri: "https://github.com/carlosnayan.png",
-            }}
+            source={userPhoto ? { uri: userPhoto } : undefined}
             alt="Imagem do usuário"
             marginRight={8}
           />
         )}
-        <ProfileButton onPress={() => setLoading(!loading)}>
+        <ProfileButton onPress={handleUserPhotoSelect}>
           <TextProfileButton> Alterar imagem</TextProfileButton>
         </ProfileButton>
         <Input placeholder="Nome" bgColor={colors.gray[600]} width="100%" />
