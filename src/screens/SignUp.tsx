@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Keyboard, ScrollView } from "react-native";
 import styled from "styled-components/native";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 type FormDataType = {
   name: string;
@@ -15,6 +17,20 @@ type FormDataType = {
   password: string;
   confirm_password: string;
 };
+
+const signUpSchema = yup.object({
+  name: yup.string().required("Nome obrigatório"),
+  email: yup.string().required("E-mail obrigatório").email("E-mail inválido"),
+  password: yup
+    .string()
+    .required("Senha obrigatória")
+    .min(6, "A senha deve ter pelo menos 6 digitos"),
+  confirm_password: yup
+    .string()
+    .required("Confirmação de senha obrigatória")
+    .min(6, "A confirmação de senha deve ter pelo menos 6 digitos")
+    .oneOf([yup.ref("password")], "As senhas devem ser iguais"),
+});
 
 export function SignUp() {
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
@@ -25,6 +41,7 @@ export function SignUp() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<FormDataType>({
+    resolver: yupResolver(signUpSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -86,7 +103,6 @@ export function SignUp() {
         <Controller
           control={control}
           name="name"
-          rules={{ required: "Nome obrigatório" }}
           render={({ field: { onChange, value } }) => (
             <Input
               placeholder="Nome"
@@ -99,13 +115,6 @@ export function SignUp() {
         <Controller
           control={control}
           name="email"
-          rules={{
-            required: "E-mail obrigatório",
-            pattern: {
-              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: "E-mail inválido",
-            },
-          }}
           render={({ field: { onChange, value } }) => (
             <Input
               keyboardType="email-address"

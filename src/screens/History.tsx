@@ -53,7 +53,7 @@ const Container = styled.SafeAreaView`
 const Heading = styled.Text`
   color: ${({ theme }) => theme.colors.gray[100]};
   font-size: ${({ theme }) => theme.fontSizes.sm};
-  font-family: ${({ theme }) => theme.fonts.body};
+  font-family: ${({ theme }) => theme.fonts.heading};
   margin-bottom: 12px;
 `;
 
