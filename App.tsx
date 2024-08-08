@@ -4,8 +4,9 @@ import {
   useFonts,
 } from "@expo-google-fonts/roboto";
 import { Routes } from "@routes/index";
-import { StatusBar, View } from "react-native";
+import { StatusBar } from "react-native";
 import { Loading } from "src/components/Loading";
+import { AuthContextProvider } from "@contexts/AuthContext";
 import { theme } from "src/theme/index";
 import { ThemeProvider } from "styled-components/native";
 
@@ -18,7 +19,9 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <StatusBar translucent barStyle="light-content" />
-      {fontsLoaded ? <Routes /> : <Loading />}
+      <AuthContextProvider>
+        {fontsLoaded ? <Routes /> : <Loading />}
+      </AuthContextProvider>
     </ThemeProvider>
   );
 }

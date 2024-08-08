@@ -1,11 +1,15 @@
 import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useContext } from "react";
+import { AuthContext } from "@contexts/AuthContext";
 import { useTheme } from "styled-components/native";
 import { AuthRoutes } from "./auth.routes";
 import { AppRoutes } from "./app.routes";
+import { useAuth } from "@hooks/useAuth";
 
 export function Routes() {
   const { colors } = useTheme();
+
+  const { user } = useAuth();
 
   const theme = DefaultTheme;
 
@@ -13,7 +17,7 @@ export function Routes() {
 
   return (
     <NavigationContainer>
-      <AuthRoutes />
+      {user ? <AppRoutes /> : <AuthRoutes />}
     </NavigationContainer>
   );
 }

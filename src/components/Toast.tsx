@@ -73,7 +73,7 @@ export function Toast({ message, visible = false, onDismiss }: ToastProps) {
         },
       ]}
     >
-      <Text style={{ fontSize: 12, color: colors.white }}>{message}</Text>
+      <Text style={{ fontSize: 16, color: colors.white }}>{message}</Text>
     </Animated.View>
   );
 }
