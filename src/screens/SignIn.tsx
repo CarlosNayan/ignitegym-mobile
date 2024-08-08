@@ -3,20 +3,25 @@ import LogoSvg from "@assets/logo.svg";
 import { Button } from "@components/Button";
 import { Input } from "@components/Input";
 import { useNavigation } from "@react-navigation/native";
-import { useEffect, useState } from "react";
-import {
-  Keyboard,
-  Platform,
-  ScrollView,
-  TouchableWithoutFeedback,
-} from "react-native";
-import styled from "styled-components/native";
 import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
+import { useEffect, useState } from "react";
+import { Keyboard, ScrollView } from "react-native";
+import styled from "styled-components/native";
 
 export function SignIn() {
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
+
+
+  function handleSubmit() {
+    console.log({
+      email,
+      password,
+    });
+  }
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -48,11 +53,12 @@ export function SignIn() {
         </Center>
         <Input
           keyboardType="email-address"
+          onChangeText={setEmail}
           autoCapitalize="none"
           placeholder="E-mail"
         />
-        <Input secureTextEntry placeholder="Senha" />
-        <Button title="Acessar" />
+        <Input secureTextEntry placeholder="Senha" onChangeText={setPassword} />
+        <Button title="Acessar" onPress={handleSubmit} />
         <Footer>
           <Text>Não tem uma conta?</Text>
           <Button
