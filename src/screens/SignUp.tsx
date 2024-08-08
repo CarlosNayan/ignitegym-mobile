@@ -3,6 +3,7 @@ import LogoSvg from "@assets/logo.svg";
 import { Button } from "@components/Button";
 import { Input } from "@components/Input";
 import { Toast } from "@components/Toast";
+import { useToast } from "@contexts/ToastContext";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigation } from "@react-navigation/native";
 import { api } from "@services/api";
@@ -36,8 +37,7 @@ const signUpSchema = yup.object({
 
 export function SignUp() {
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
-  const [showToast, setShowToast] = useState<boolean>(false);
-  const [toastMessage, setToastMessage] = useState<string>("");
+  const { showToast } = useToast();
 
   const {
     control,
@@ -49,19 +49,13 @@ export function SignUp() {
 
   const navigation = useNavigation();
 
-  const handleShowToast = () => {
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3500); // Duração do toast
-  };
-
   async function handleSignUp(data: FormDataType) {
     try {
       const response = await api.post("/users", data);
     } catch (error) {
       console.error("screens/SignUp.tsx > handleSignUp > error", error);
       if (error instanceof AppError) {
-        setToastMessage(error.mensage);
-        handleShowToast();
+        showToast(error.message);
       }
     }
   }
@@ -88,14 +82,13 @@ export function SignUp() {
       errors.password ||
       errors.confirm_password
     ) {
-      setToastMessage(
+      showToast(
         errors.name?.message ||
           errors.email?.message ||
           errors.password?.message ||
           errors.confirm_password?.message ||
           "Algo deu errado"
       );
-      handleShowToast();
     }
   }, [isSubmitting]);
 
@@ -174,7 +167,6 @@ export function SignUp() {
           />
         </Footer>
       </Container>
-      <Toast message={toastMessage} visible={showToast} />
     </ScrollView>
   );
 }

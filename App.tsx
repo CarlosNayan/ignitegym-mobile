@@ -9,6 +9,7 @@ import { Loading } from "src/components/Loading";
 import { AuthContextProvider } from "@contexts/AuthContext";
 import { theme } from "src/theme/index";
 import { ThemeProvider } from "styled-components/native";
+import { ToastProvider } from "@contexts/ToastContext";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -18,10 +19,12 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <StatusBar translucent barStyle="light-content" />
-      <AuthContextProvider>
-        {fontsLoaded ? <Routes /> : <Loading />}
-      </AuthContextProvider>
+      <ToastProvider>
+        <StatusBar translucent barStyle="light-content" />
+        <AuthContextProvider>
+          {fontsLoaded ? <Routes /> : <Loading />}
+        </AuthContextProvider>
+      </ToastProvider>
     </ThemeProvider>
   );
 }

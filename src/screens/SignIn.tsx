@@ -2,7 +2,7 @@ import BackgroundImg from "@assets/background.png";
 import LogoSvg from "@assets/logo.svg";
 import { Button } from "@components/Button";
 import { Input } from "@components/Input";
-import { Toast } from "@components/Toast";
+import { useToast } from "@contexts/ToastContext";
 import { useAuth } from "@hooks/useAuth";
 import { useNavigation } from "@react-navigation/native";
 import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
@@ -13,8 +13,8 @@ import styled from "styled-components/native";
 
 export function SignIn() {
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
-  const [showToast, setShowToast] = useState<boolean>(false);
-  const [toastMessage, setToastMessage] = useState<string>("");
+
+  const { showToast } = useToast();
 
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
 
@@ -25,11 +25,6 @@ export function SignIn() {
   } = useForm<{ email: string; password: string }>({});
 
   const { signIn } = useAuth();
-
-  const handleShowToast = () => {
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3500); // Duração do toast
-  };
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -48,12 +43,7 @@ export function SignIn() {
 
   useEffect(() => {
     if (errors.email || errors.password) {
-      setToastMessage(
-        errors.email || errors.password
-          ? "Email e senha obrigatórios"
-          : "Algo deu errado"
-      );
-      handleShowToast();
+      showToast("Por favor, preencha todos os campos");
     }
   }, [isSubmitting]);
 
@@ -112,7 +102,6 @@ export function SignIn() {
           />
         </Footer>
       </Container>
-      <Toast message={toastMessage} visible={showToast} />
     </ScrollView>
   );
 }
