@@ -8,7 +8,7 @@ interface ToastProps {
   onDismiss?: () => void;
 }
 
-export function Toast({ message, visible, onDismiss }: ToastProps) {
+export function Toast({ message, visible = false, onDismiss }: ToastProps) {
   const [animatedValue] = useState(new Animated.Value(130)); // Inicia fora da tela
 
   const { colors } = useTheme();
@@ -73,7 +73,7 @@ export function Toast({ message, visible, onDismiss }: ToastProps) {
         },
       ]}
     >
-      <Text style={{ fontSize: 12, color: "#999" }}>{message}</Text>
+      <Text style={{ fontSize: 12, color: colors.white }}>{message}</Text>
     </Animated.View>
   );
 }

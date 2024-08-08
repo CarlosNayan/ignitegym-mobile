@@ -10,6 +10,8 @@ import { Keyboard, ScrollView } from "react-native";
 import styled from "styled-components/native";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { api } from "@services/api";
+import axios from "axios";
 
 type FormDataType = {
   name: string;
@@ -35,6 +37,7 @@ const signUpSchema = yup.object({
 export function SignUp() {
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
   const [showToast, setShowToast] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string>("");
 
   const {
     control,
@@ -57,8 +60,16 @@ export function SignUp() {
     setTimeout(() => setShowToast(false), 3500); // Duração do toast
   };
 
-  function handleSignUp(data: FormDataType) {
-    console.log(data);
+  async function handleSignUp(data: FormDataType) {
+    try {
+      const response = await api.post("/users", data);
+    } catch (error) {
+      console.error("screens/SignUp.tsx > handleSignUp > error", error);
+      if (axios.isAxiosError(error)) {
+        setToastMessage(error.response?.data.message || "Algo deu errado");
+        handleShowToast();
+      }
+    }
   }
 
   useEffect(() => {
@@ -83,6 +94,13 @@ export function SignUp() {
       errors.password ||
       errors.confirm_password
     ) {
+      setToastMessage(
+        errors.name?.message ||
+          errors.email?.message ||
+          errors.password?.message ||
+          errors.confirm_password?.message ||
+          "Algo deu errado"
+      );
       handleShowToast();
     }
   }, [isSubmitting]);
@@ -153,7 +171,7 @@ export function SignUp() {
             />
           )}
         />
-        <Button title="Criar" onPress={handleSubmit(handleSignUp)} />
+        <Button title="Criar e acessar" onPress={handleSubmit(handleSignUp)} />
         <Footer>
           <Button
             title="Voltar para o login"
@@ -162,16 +180,7 @@ export function SignUp() {
           />
         </Footer>
       </Container>
-      <Toast
-        message={
-          errors.name?.message ||
-          errors.email?.message ||
-          errors.password?.message ||
-          errors.confirm_password?.message ||
-          "Erro ao criar conta"
-        }
-        visible={showToast}
-      />
+      <Toast message={toastMessage} visible={showToast} />
     </ScrollView>
   );
 }
