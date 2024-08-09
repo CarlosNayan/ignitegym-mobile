@@ -1,25 +1,56 @@
+import defaultUserPhotoImg from "@assets/userPhotoDefault.png";
 import styled from "styled-components/native";
 import { UserPhoto } from "./UserPhoto";
 
 import { MaterialIcons } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native";
+import { useAuth } from "@hooks/useAuth";
+import { useEffect, useState } from "react";
+import { Image, TouchableOpacity } from "react-native";
+import { SkeletonComponent } from "./SkelletonElement";
 
 export function HomeHeader() {
+  const { user, signOut } = useAuth();
+  const [avatarLoading, setAvatarLoading] = useState(true);
+  const [avatarSource, setAvatarSource] = useState<{ uri: string } | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (user?.avatar) {
+      // Usando Image.prefetch para carregar a imagem antecipadamente
+      Image.prefetch(user.avatar)
+        .then(() => {
+          setAvatarSource({ uri: user.avatar });
+          setAvatarLoading(false);
+        })
+        .catch(() => {
+          setAvatarLoading(false);
+        });
+    } else {
+      setAvatarLoading(false);
+    }
+  }, [user?.avatar]);
+
   return (
     <HStack>
-      <UserPhoto
-        size={64}
-        source={{
-          uri: "https://github.com/carlosnayan.png",
-        }}
-        alt="Imagem do usuário"
-        marginRight={8}
-      />
+      {avatarLoading ? (
+        <SkeletonComponent
+          style={{ marginRight: 8, width: 64, height: 64, borderRadius: 100 }}
+        />
+      ) : (
+        <UserPhoto
+          size={64}
+          source={avatarSource ? avatarSource : defaultUserPhotoImg}
+          alt="Imagem do usuário"
+          marginRight={8}
+        />
+      )}
+
       <VStack>
         <Text>Olá,</Text>
-        <Heading>Carlos</Heading>
+        <Heading>{user?.name}</Heading>
       </VStack>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={signOut}>
         <LogoutIcon name="logout" />
       </TouchableOpacity>
     </HStack>

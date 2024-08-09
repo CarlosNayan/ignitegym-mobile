@@ -1,10 +1,14 @@
-import { api } from "@services/api";
-import { createContext, ReactNode, useEffect, useState } from "react";
 import { UserDTO } from "@dtos/UserDTO";
-import { useToast } from "./ToastContext";
+import { api } from "@services/api";
 import { AppError } from "@utils/AppError";
+import { createContext, ReactNode, useEffect, useState } from "react";
+import { useToast } from "./ToastContext";
 
-import { storageUserSave, storageUserGet } from "@storage/storageUser";
+import {
+  storageUserGet,
+  storageUserRemove,
+  storageUserSave,
+} from "@storage/storageUser";
 
 export type AuthContextDataProps = {
   user: UserDTO | null;
@@ -54,6 +58,19 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
     }
   }
 
+  async function signOut() {
+    try {
+      setIsLoadingChachedUserData(true);
+      // await new Promise(resolve => setTimeout(resolve, 3000));
+      setUser(null);
+      await storageUserRemove();
+    } catch (error) {
+      console.error("screens/SignIn.tsx > signOut > error", error);
+      showToast("Não foi possível sair");
+    } finally {
+      setIsLoadingChachedUserData(false);
+    }
+  }
   useEffect(() => {
     cachedUserData();
   }, []);
@@ -64,7 +81,7 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
         user,
         isLoadingCachedUserData,
         signIn: (email, password) => signIn(email, password),
-        signOut: () => Promise.resolve(setUser(null)),
+        signOut: () => signOut(),
       }}
     >
       {children}

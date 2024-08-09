@@ -1,20 +1,16 @@
-import React, { useRef, useEffect } from "react";
-import { Animated, View } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { Animated, ViewProps } from "react-native";
 
 type Props = {
-  height: number;
-  width: number;
-  borderRadius?: number;
+  style: ViewProps["style"];
   startColor?: string;
   endColor?: string;
 };
 
 export function SkeletonComponent({
-  height = 20,
-  width = 100,
-  borderRadius = 0,
   startColor = "#303030",
   endColor = "#101010",
+  style,
 }: Props) {
   const animatedColor = useRef(new Animated.Value(0)).current;
 
@@ -50,12 +46,12 @@ export function SkeletonComponent({
 
   return (
     <Animated.View
-      style={{
-        backgroundColor: backgroundColorInterpolation,
-        borderRadius: borderRadius,
-        height: height, // Convert string to number if possible
-        width: width, // Convert string to number if possible
-      }}
+      style={[
+        {
+          backgroundColor: backgroundColorInterpolation,
+        },
+        style,
+      ]}
     />
   );
 }

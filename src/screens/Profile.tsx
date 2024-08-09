@@ -3,11 +3,11 @@ import { Input } from "@components/Input";
 import { ScreensHeader } from "@components/ScreensHeader";
 import { SkeletonComponent } from "@components/SkelletonElement";
 import { UserPhoto } from "@components/UserPhoto";
-import { useState } from "react";
-import styled, { useTheme } from "styled-components/native";
-import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
+import * as ImagePicker from "expo-image-picker";
+import { useState } from "react";
 import { Alert } from "react-native";
+import styled, { useTheme } from "styled-components/native";
 
 export function Profile() {
   const [loading, setLoading] = useState(false);
@@ -62,9 +62,12 @@ export function Profile() {
       <Container>
         {loading ? (
           <SkeletonComponent
-            height={PHOTO_SIZE}
-            width={PHOTO_SIZE}
-            borderRadius={100}
+            style={{
+              marginRight: 8,
+              width: PHOTO_SIZE,
+              height: PHOTO_SIZE,
+              borderRadius: 100,
+            }}
             startColor={colors.gray[500]}
             endColor={colors.gray[400]}
           />

@@ -2,9 +2,9 @@ import BackgroundImg from "@assets/background.png";
 import LogoSvg from "@assets/logo.svg";
 import { Button } from "@components/Button";
 import { Input } from "@components/Input";
-import { Toast } from "@components/Toast";
 import { useToast } from "@contexts/ToastContext";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useAuth } from "@hooks/useAuth";
 import { useNavigation } from "@react-navigation/native";
 import { api } from "@services/api";
 import { AppError } from "@utils/AppError";
@@ -38,6 +38,7 @@ const signUpSchema = yup.object({
 export function SignUp() {
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
   const { showToast } = useToast();
+  const { signIn } = useAuth();
 
   const {
     control,
@@ -51,7 +52,8 @@ export function SignUp() {
 
   async function handleSignUp(data: FormDataType) {
     try {
-      const response = await api.post("/users", data);
+      await api.post("/users", data);
+      signIn(data.email, data.password);
     } catch (error) {
       console.error("screens/SignUp.tsx > handleSignUp > error", error);
       if (error instanceof AppError) {
