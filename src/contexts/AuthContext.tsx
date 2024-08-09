@@ -5,6 +5,11 @@ import { createContext, ReactNode, useEffect, useState } from "react";
 import { useToast } from "./ToastContext";
 
 import {
+  storageAuthTokenGet,
+  storageAuthTokenRemove,
+  storageAuthTokenSave,
+} from "@storage/storageAuthToken";
+import {
   storageUserGet,
   storageUserRemove,
   storageUserSave,
@@ -34,11 +39,16 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
   async function cachedUserData() {
     try {
       const userStorage = await storageUserGet();
-      if (userStorage) {
+      const tokenStorage = await storageAuthTokenGet();
+
+      if (tokenStorage && userStorage) {
+        api.defaults.headers.common["Authorization"] = `Bearer ${tokenStorage}`;
+
         setUser(userStorage);
       }
     } catch (error) {
-      throw new Error();
+      console.error("screens/SignIn.tsx > cachedUserData > error", error);
+      showToast("Não foi possível carregar os dados do usuário");
     } finally {
       setIsLoadingChachedUserData(false);
     }
@@ -46,8 +56,13 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
 
   async function signIn(email: string, password: string) {
     try {
+      setIsLoadingChachedUserData(true);
       const { data } = await api.post("/sessions", { email, password });
+
+      api.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
+
       await storageUserSave(data.user);
+      await storageAuthTokenSave(data.token);
       setUser(data.user);
     } catch (error) {
       console.error("screens/SignIn.tsx > signIn > error", error);
@@ -55,6 +70,8 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
         showToast(error.message);
         return;
       }
+    } finally {
+      setIsLoadingChachedUserData(false);
     }
   }
 
@@ -64,6 +81,7 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
       // await new Promise(resolve => setTimeout(resolve, 3000));
       setUser(null);
       await storageUserRemove();
+      await storageAuthTokenRemove();
     } catch (error) {
       console.error("screens/SignIn.tsx > signOut > error", error);
       showToast("Não foi possível sair");
