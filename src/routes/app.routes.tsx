@@ -16,7 +16,7 @@ type AppRoutes = {
   Home: undefined;
   Profile: undefined;
   History: undefined;
-  Exercise: undefined;
+  Exercise: { exerciseId: string };
   navigate: (screen: keyof AppNavigatorRoutesProps) => void;
 };
 

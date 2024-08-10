@@ -1,97 +1,120 @@
-import React from "react";
+import { ExerciseCard } from "@components/ExerciseCard";
 import { Group } from "@components/Group";
 import { HomeHeader } from "@components/HomeHeader";
-import { FlatList, View, ListRenderItem, FlatListProps } from "react-native";
-import styled from "styled-components/native";
-import { ExerciseCard } from "@components/ExerciseCard";
-import { useNavigation } from "@react-navigation/native";
+import { Loading } from "@components/Loading";
+import { useToast } from "@contexts/ToastContext";
+import { ExerciseDTO } from "@dtos/ExerciseDTO";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
+import { api } from "@services/api";
+import React, { useCallback, useEffect } from "react";
+import { FlatList, View } from "react-native";
+import styled from "styled-components/native";
 
 export function Home() {
   const [selectedGroup, setSelectedGroup] = React.useState<string | null>(null);
+  const [groups, setGroups] = React.useState<string[]>([]);
+  const [exercises, setExercises] = React.useState<ExerciseDTO[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const navigate = useNavigation<AppNavigatorRoutesProps>();
-  
-  const groups: string[] = ["Costas", "Bíceps", "Tríceps", "Ombro"];
+  const { showToast } = useToast();
 
-  const exercises = [
-    {
-      id: "1",
-      name: "Remada unilateral",
-    },
-    {
-      id: "2",
-      name: "Remada Smith",
-    },
-  ];
+  async function fetchGroups() {
+    try {
+      const response = await api.get("/groups");
+      setGroups(response.data);
+    } catch (error) {
+      console.error("@screens/Home > fetchGroups > error", error);
+      showToast("Erro ao carregar grupos");
+    }
+  }
+
+  async function fetchExercisesByGroup(group: string) {
+    try {
+      setIsLoading(true);
+      const response = await api.get(`/exercises/bygroup/${group}`);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setExercises(response.data);
+    } catch (error) {
+      console.error("@screens/Home > fetchExercisesByGroup > error", error);
+      showToast("Erro ao carregar exercícios");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (selectedGroup) {
+        fetchExercisesByGroup(selectedGroup);
+      }
+    }, [selectedGroup])
+  );
 
   return (
     <>
       <HomeHeader />
-      <HFlatList
-        data={groups}
-        keyExtractor={(item: string) => item}
-        renderItem={({ item }) => (
-          <Group
-            onPress={() =>
-              setSelectedGroup((prev) => (prev === item ? null : item))
-            }
-            key={item}
-            pressed={selectedGroup === item}
-            name={item}
-          />
-        )}
-      />
       <Container>
-        <HStack>
-          <Heading>Exercícios</Heading>
-          <Text>{exercises.length}</Text>
-        </HStack>
-        <VFlatList
-          data={exercises}
-          keyExtractor={(item: { id: string; name: string }) =>
-            `${item.id}-${item.name}`
-          }
-          renderItem={({}) => (
-            <ExerciseCard onPress={() => navigate.navigate("Exercise")} />
+        <FlatList
+          horizontal
+          data={groups}
+          keyExtractor={(item: string) => item}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{
+            flexDirection: "row",
+            maxHeight: 40,
+            marginTop: 24,
+          }}
+          contentInset={{ right: 24, left: 24 }}
+          renderItem={({ item }) => (
+            <Group
+              onPress={() =>
+                setSelectedGroup((prev) => (prev === item ? null : item))
+              }
+              key={item}
+              pressed={selectedGroup === item}
+              disabled={isLoading}
+              name={item}
+            />
           )}
         />
+        {isLoading ? (
+          <View style={{ height: 200 }}>
+            <Loading />
+          </View>
+        ) : (
+          <>
+            <HStack>
+              <Heading>Exercícios</Heading>
+              <Text>{exercises.length}</Text>
+            </HStack>
+            <FlatList
+              data={exercises}
+              keyExtractor={(item) => `${item.id}-${item.name}`}
+              renderItem={(item) => (
+                <ExerciseCard
+                  data={item}
+                  // @ts-ignore
+                  onPress={() => navigate.navigate("Exercise", { exerciseId: item.item.id })}
+                />
+              )}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 24 }}
+            />
+          </>
+        )}
       </Container>
     </>
   );
 }
 
-const HFlatList = styled.FlatList.attrs({
-  contentContainerStyle: {
-    paddingRight: 24,
-  },
-  horizontal: true,
-  showsHorizontalScrollIndicator: false,
-})<{
-  renderItem: ListRenderItem<string>;
-  keyExtractor: (item: string) => string;
-}>`
-  flex-direction: row;
-  margin-top: 24px;
-  margin-left: 24px;
-  max-height: 40px;
-`;
-
-const VFlatList = styled.FlatList.attrs({
-  contentContainerStyle: {
-    paddingBottom: 24,
-  },
-  showsVerticalScrollIndicator: false,
-})<{
-  renderItem: ListRenderItem<{ id: string; name: string }>;
-  keyExtractor: (item: { id: string; name: string }) => string;
-}>`
-  flex: 1;
-  padding: 0 24px;
-`;
-
 const Container = styled.SafeAreaView`
-  flex: 1;
   gap: 24px;
 `;
 
@@ -99,7 +122,6 @@ const HStack = styled.View`
   align-items: center;
   justify-content: space-between;
   flex-direction: row;
-  margin-top: 24px;
   padding: 0 24px;
 `;
 

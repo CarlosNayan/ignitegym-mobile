@@ -78,7 +78,6 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
   async function signOut() {
     try {
       setIsLoadingChachedUserData(true);
-      // await new Promise(resolve => setTimeout(resolve, 3000));
       setUser(null);
       await storageUserRemove();
       await storageAuthTokenRemove();

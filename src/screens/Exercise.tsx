@@ -1,14 +1,71 @@
 import styled from "styled-components/native";
 import { Feather } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { TouchableOpacity, View } from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { TouchableOpacity, View, Image } from "react-native";
 import BodySvg from "../assets/body.svg";
 import SeriesSvg from "../assets/series.svg";
 import RepetitionsSvg from "../assets/repetitions.svg";
 import { Button } from "@components/Button";
+import { api } from "@services/api";
+import { useToast } from "@contexts/ToastContext";
+import { useEffect, useState } from "react";
+import { ExerciseDTO } from "@dtos/ExerciseDTO";
+import { SkeletonComponent } from "@components/SkelletonElement";
+
+type routeParams = {
+  exerciseId: string;
+};
 
 export function Exercise() {
+  const [exercise, setExercise] = useState<ExerciseDTO | null>(null);
+  const [demoLoading, setDemoLoading] = useState(true);
+  const [demoSource, setDemoSource] = useState<{ uri: string } | null>(null);
+
   const navigation = useNavigation();
+  const { params } = useRoute();
+
+  const { showToast } = useToast();
+
+  const { exerciseId } = params as routeParams;
+
+  async function fetchExerciseById() {
+    setDemoLoading(true);
+    try {
+      const response = await api.get(`/exercises/${exerciseId}`);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setExercise(response.data);
+    } catch (error) {
+      console.error("@screens/Exercise > fetchExerciseById > error", error);
+      showToast("Erro ao carregar exercício");
+    }
+  }
+
+  useEffect(() => {
+    fetchExerciseById();
+  }, [exerciseId]);
+
+  useEffect(() => {
+    if (exercise) {
+      // Usando Image.prefetch para carregar a imagem antecipadamente
+      Image.prefetch(`${api.defaults.baseURL}/exercise/demo/${exercise?.demo}`)
+        .then(() => {
+          setDemoSource({
+            uri: `${api.defaults.baseURL}/exercise/demo/${exercise?.demo}`,
+          });
+          setDemoLoading(false);
+        })
+        .catch(() => {
+          setDemoLoading(false);
+        })
+        .finally(() => {
+          setDemoLoading(false);
+        });
+    } else {
+      setDemoLoading(false);
+    }
+  }, [exercise]);
+
   return (
     <>
       <Header>
@@ -16,28 +73,30 @@ export function Exercise() {
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <ArrowLeftIcon name="arrow-left" />
           </TouchableOpacity>
-          <Heading>Remada unilateral</Heading>
+          <Heading>{exercise?.name}</Heading>
         </Box>
         <Box>
           <BodySvg />
-          <Text>Costa</Text>
+          <Text>{exercise?.group}</Text>
         </Box>
       </Header>
       <Container>
-        <Image
-          source={{
-            uri: "https://conteudo.imguol.com.br/c/entretenimento/0c/2019/12/03/remada-unilateral-com-halteres-1575402100538_v2_600x600.jpg",
-          }}
-        />
+        {demoLoading ? (
+          <SkeletonComponent
+            style={{ margin: 12, width: "auto", height: 350, borderRadius: 8 }}
+          />
+        ) : (
+          <DemoImage source={demoSource!} />
+        )}
         <BottomCard>
           <HStack>
             <Box>
               <SeriesSvg />
-              <Text>3 séries</Text>
+              <Text>{exercise?.series} séries</Text>
             </Box>
             <Box>
               <RepetitionsSvg />
-              <Text>12 repetições</Text>
+              <Text>{exercise?.repetitions} repetições</Text>
             </Box>
           </HStack>
           <HStack>
@@ -90,9 +149,9 @@ const Text = styled.Text`
   text-align: center;
 `;
 
-const Image = styled.Image`
+const DemoImage = styled.Image`
   width: "full";
-  height: 320px;
+  height: 350px;
   margin: 12px;
   border-radius: 8px;
   resize: center;
