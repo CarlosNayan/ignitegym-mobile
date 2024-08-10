@@ -1,16 +1,17 @@
-import styled from "styled-components/native";
+import { Button } from "@components/Button";
+import { SkeletonComponent } from "@components/SkelletonElement";
+import { useToast } from "@contexts/ToastContext";
+import { ExerciseDTO } from "@dtos/ExerciseDTO";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { TouchableOpacity, View, Image } from "react-native";
-import BodySvg from "../assets/body.svg";
-import SeriesSvg from "../assets/series.svg";
-import RepetitionsSvg from "../assets/repetitions.svg";
-import { Button } from "@components/Button";
 import { api } from "@services/api";
-import { useToast } from "@contexts/ToastContext";
+import { AppError } from "@utils/AppError";
 import { useEffect, useState } from "react";
-import { ExerciseDTO } from "@dtos/ExerciseDTO";
-import { SkeletonComponent } from "@components/SkelletonElement";
+import { Image, TouchableOpacity } from "react-native";
+import styled from "styled-components/native";
+import BodySvg from "../assets/body.svg";
+import RepetitionsSvg from "../assets/repetitions.svg";
+import SeriesSvg from "../assets/series.svg";
 
 type routeParams = {
   exerciseId: string;
@@ -20,6 +21,7 @@ export function Exercise() {
   const [exercise, setExercise] = useState<ExerciseDTO | null>(null);
   const [demoLoading, setDemoLoading] = useState(true);
   const [demoSource, setDemoSource] = useState<{ uri: string } | null>(null);
+  const [isSendingRegister, setIsSendingRegister] = useState(false);
 
   const navigation = useNavigation();
   const { params } = useRoute();
@@ -32,12 +34,34 @@ export function Exercise() {
     setDemoLoading(true);
     try {
       const response = await api.get(`/exercises/${exerciseId}`);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // simulate loading
 
       setExercise(response.data);
     } catch (error) {
       console.error("@screens/Exercise > fetchExerciseById > error", error);
-      showToast("Erro ao carregar exercício");
+      if (error instanceof AppError)
+        return showToast.error("Erro ao carregar exercício");
+    }
+  }
+
+  async function handleExerciseHistoryRegister() {
+    setIsSendingRegister(true);
+    try {
+      await api.post(`/history`, {
+        exercise_id: exerciseId,
+      });
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // simulate loading
+      showToast.sucess("Exercício registrado com sucesso");
+      navigation.goBack();
+    } catch (error) {
+      console.error(
+        "@screens/Exercise > handleExerciseHistoryRegister > error",
+        error
+      );
+      if (error instanceof AppError)
+        return showToast.error("Erro ao registrar o exercício");
+    } finally {
+      setIsSendingRegister(false);
     }
   }
 
@@ -100,7 +124,11 @@ export function Exercise() {
             </Box>
           </HStack>
           <HStack>
-            <Button onPress={() => {}} title="Marcar como realizado" />
+            <Button
+              onPress={handleExerciseHistoryRegister}
+              title="Marcar como realizado"
+              isLoading={isSendingRegister}
+            />
           </HStack>
         </BottomCard>
       </Container>

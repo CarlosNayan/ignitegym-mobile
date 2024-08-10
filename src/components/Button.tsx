@@ -1,16 +1,23 @@
-import { TouchableOpacity, TouchableOpacityProps } from "react-native";
+import { ActivityIndicator, TouchableOpacity, TouchableOpacityProps } from "react-native";
 import styled from "styled-components/native";
 
 interface Props extends TouchableOpacityProps {
   title: string;
   type?: "SOLID" | "OUTLINE";
   marginTop?: string;
+  isLoading?: boolean;
 }
 
-export function Button({ title, type = "SOLID", marginTop, ...rest }: Props) {
+export function Button({
+  title,
+  type = "SOLID",
+  marginTop,
+  isLoading = false,
+  ...rest
+}: Props) {
   return (
-    <Container type={type} marginTop={marginTop} {...rest}>
-      <Title>{title}</Title>
+    <Container type={type} marginTop={marginTop} disabled={isLoading} {...rest}>
+      {isLoading ? <ActivityIndicator color="#fff" /> : <Title>{title}</Title>}
     </Container>
   );
 }
@@ -27,6 +34,7 @@ const Container = styled(TouchableOpacity)<{
   border: ${({ theme, type }) =>
     type === "SOLID" ? "none" : `1px solid ${theme.colors.green[700]}`};
   border-radius: 6px;
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   justify-content: center;
   align-items: center;
   width: 100%;

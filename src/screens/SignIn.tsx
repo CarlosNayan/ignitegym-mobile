@@ -13,6 +13,7 @@ import styled from "styled-components/native";
 
 export function SignIn() {
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { showToast } = useToast();
 
@@ -43,7 +44,7 @@ export function SignIn() {
 
   useEffect(() => {
     if (errors.email || errors.password) {
-      showToast("Por favor, preencha todos os campos");
+      showToast.error("Por favor, preencha todos os campos");
     }
   }, [isSubmitting]);
 
@@ -91,7 +92,12 @@ export function SignIn() {
         />
         <Button
           title="Acessar"
-          onPress={handleSubmit((data) => signIn(data.email, data.password))}
+          onPress={handleSubmit(async (data) => {
+            setIsLoading(true);
+            await new Promise((resolve) => setTimeout(resolve, 1000)); // simulate loading
+            signIn(data.email, data.password);
+          })}
+          isLoading={isLoading}
         />
         <Footer>
           <Text>Não tem uma conta?</Text>

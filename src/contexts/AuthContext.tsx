@@ -48,7 +48,7 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
       }
     } catch (error) {
       console.error("screens/SignIn.tsx > cachedUserData > error", error);
-      showToast("Não foi possível carregar os dados do usuário");
+      showToast.error("Não foi possível carregar os dados do usuário");
     } finally {
       setIsLoadingChachedUserData(false);
     }
@@ -61,13 +61,15 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
 
       api.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
 
-      await storageUserSave(data.user);
-      await storageAuthTokenSave(data.token);
-      setUser(data.user);
+      if (data.user && data.token) {
+        await storageUserSave(data.user);
+        await storageAuthTokenSave(data.token);
+        setUser(data.user);
+      }
     } catch (error) {
       console.error("screens/SignIn.tsx > signIn > error", error);
       if (error instanceof AppError) {
-        showToast(error.message);
+        showToast.error(error.message);
         return;
       }
     } finally {
@@ -83,7 +85,7 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
       await storageAuthTokenRemove();
     } catch (error) {
       console.error("screens/SignIn.tsx > signOut > error", error);
-      showToast("Não foi possível sair");
+      showToast.error("Não foi possível sair");
     } finally {
       setIsLoadingChachedUserData(false);
     }

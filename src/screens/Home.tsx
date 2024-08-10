@@ -26,7 +26,7 @@ export function Home() {
       setGroups(response.data);
     } catch (error) {
       console.error("@screens/Home > fetchGroups > error", error);
-      showToast("Erro ao carregar grupos");
+      showToast.error("Erro ao carregar grupos");
     }
   }
 
@@ -34,12 +34,12 @@ export function Home() {
     try {
       setIsLoading(true);
       const response = await api.get(`/exercises/bygroup/${group}`);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // simulate loading
 
       setExercises(response.data);
     } catch (error) {
       console.error("@screens/Home > fetchExercisesByGroup > error", error);
-      showToast("Erro ao carregar exercícios");
+      showToast.error("Erro ao carregar exercícios");
     } finally {
       setIsLoading(false);
     }
@@ -100,8 +100,10 @@ export function Home() {
               renderItem={(item) => (
                 <ExerciseCard
                   data={item}
-                  // @ts-ignore
-                  onPress={() => navigate.navigate("Exercise", { exerciseId: item.item.id })}
+                  onPress={() =>
+                    // @ts-ignore
+                    navigate.navigate("Exercise", { exerciseId: item.item.id })
+                  }
                 />
               )}
               showsVerticalScrollIndicator={false}

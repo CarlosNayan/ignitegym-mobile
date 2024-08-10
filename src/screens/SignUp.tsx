@@ -57,7 +57,7 @@ export function SignUp() {
     } catch (error) {
       console.error("screens/SignUp.tsx > handleSignUp > error", error);
       if (error instanceof AppError) {
-        showToast(error.message);
+        showToast.error(error.message);
       }
     }
   }
@@ -84,7 +84,7 @@ export function SignUp() {
       errors.password ||
       errors.confirm_password
     ) {
-      showToast(
+      showToast.error(
         errors.name?.message ||
           errors.email?.message ||
           errors.password?.message ||

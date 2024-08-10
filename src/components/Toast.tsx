@@ -3,12 +3,13 @@ import { Animated, Easing, Text } from "react-native";
 import { useTheme } from "styled-components";
 
 interface ToastProps {
+  type: "SUCCESS" | "ERROR";
   message: string;
   visible: boolean;
   onDismiss?: () => void;
 }
 
-export function Toast({ message, visible = false, onDismiss }: ToastProps) {
+export function Toast({ type, message, visible = false, onDismiss }: ToastProps) {
   const [animatedValue] = useState(new Animated.Value(130)); // Inicia fora da tela
 
   const { colors } = useTheme();
@@ -63,7 +64,7 @@ export function Toast({ message, visible = false, onDismiss }: ToastProps) {
           zIndex: 10,
 
           borderLeftWidth: 10,
-          borderLeftColor: colors.red[500],
+          borderLeftColor: type === "SUCCESS" ? colors.green[500] : colors.red[500],
 
           transform: [{ translateY: animatedValue }],
           opacity: animatedValue.interpolate({
