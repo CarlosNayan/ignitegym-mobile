@@ -63,6 +63,7 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
       api.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
 
       if (data.user && data.token) {
+        data.user.avatar = `${api.defaults.baseURL}/avatar/${data.user.avatar}`;
         await storageUserSave(data.user);
         await storageAuthTokenSave(data.token);
         setUser(data.user);
