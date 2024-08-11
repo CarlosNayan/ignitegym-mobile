@@ -40,7 +40,7 @@ export function HomeHeader() {
       ) : (
         <UserPhoto
           size={64}
-          source={avatarSource ? avatarSource : defaultUserPhotoImg}
+          source={avatarSource || defaultUserPhotoImg}
           alt="Imagem do usuário"
           marginRight={8}
         />

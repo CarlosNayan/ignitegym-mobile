@@ -4,6 +4,7 @@ import { ScreensHeader } from "@components/ScreensHeader";
 import { SkeletonComponent } from "@components/SkelletonElement";
 import { UserPhoto } from "@components/UserPhoto";
 import { useToast } from "@contexts/ToastContext";
+import { UserDTO } from "@dtos/UserDTO";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useAuth } from "@hooks/useAuth";
 import { api } from "@services/api";
@@ -12,6 +13,7 @@ import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Image } from "react-native";
 import styled, { useTheme } from "styled-components/native";
 import * as yup from "yup";
 
@@ -53,8 +55,9 @@ const profileSchema = yup.object({
 export function Profile() {
   const [loading, setLoading] = useState(false);
   const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
-  const [userPhoto, setUserPhoto] = useState<string | null>(
-    "https://github.com/carlosnayan.png"
+  const [avatarLoading, setAvatarLoading] = useState(true);
+  const [avatarSource, setAvatarSource] = useState<{ uri: string } | null>(
+    null
   );
 
   const PHOTO_SIZE = 128;
@@ -89,28 +92,51 @@ export function Profile() {
 
       if (selectedPhoto.canceled) return;
 
-      if (selectedPhoto.assets[0].uri) {
-        const photoInfo = await FileSystem.getInfoAsync(
-          selectedPhoto.assets[0].uri
-        );
-        if (photoInfo && "size" in photoInfo) {
-          if (photoInfo.size / 1024 / 1024 > 5) {
-            showToast.error(
-              "Essa imagem é muito grande. Escolha uma de até 5MB."
-            );
-            return;
-          }
-        }
-      } else {
+      if (!selectedPhoto.assets[0]?.uri) {
         return showToast.error("Não foi possível selecionar a imagem.");
       }
 
-      setUserPhoto(selectedPhoto.assets[0].uri);
+      const photoInfo = await FileSystem.getInfoAsync(
+        selectedPhoto.assets[0]?.uri
+      );
+
+      if (
+        photoInfo.exists &&
+        photoInfo.size &&
+        photoInfo.size / 1024 / 1024 > 5
+      ) {
+        return showToast.error(
+          "Essa imagem é muito grande. Escolha uma de até 5MB."
+        );
+      }
+
+      const fileExtension = selectedPhoto.assets[0].uri.split(".").pop();
+      const photoFile = {
+        name: `${user?.name}.${fileExtension}`.toLowerCase(),
+        uri: selectedPhoto.assets[0].uri,
+        type: `image/${fileExtension}`,
+      } as any;
+
+      const userPhotoUploadForm = new FormData();
+      userPhotoUploadForm.append("avatar", photoFile);
+
+      const response = await api.patch("/users/avatar", userPhotoUploadForm, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      const userUpdated = user as UserDTO;
+      userUpdated.avatar = `${api.defaults.baseURL}/avatar/${response.data.avatar}`;
+      await updateUser(userUpdated);
+      showToast.success("Avatar atualizado");
     } catch (error) {
       console.error(
         "screens/Profile.tsx > handleUserPhotoSelect > error",
         error
       );
+
+      if (error instanceof AppError) showToast.error(error.message);
+      else showToast.error("Não foi possível selecionar a imagem.");
     } finally {
       setLoading(false);
     }
@@ -133,24 +159,38 @@ export function Profile() {
     }
   }, [isSubmitting]);
 
+  useEffect(() => {
+    if (user?.avatar) {
+      // Usando Image.prefetch para carregar a imagem antecipadamente
+      Image.prefetch(user.avatar)
+        .then(() => {
+          setAvatarSource({ uri: user.avatar });
+          setAvatarLoading(false);
+        })
+        .catch(() => {
+          setAvatarLoading(false);
+        });
+    } else {
+      setAvatarLoading(false);
+    }
+  }, [user?.avatar]);
+
   async function handleProfileUpdate(updatedData: FormDataProps) {
     try {
       setIsSubmittingUpdate(true);
 
       await api.put("/users", updatedData);
 
-      const userUpdated = user;
-      if (updatedData.name) userUpdated!.name = updatedData.name;
+      const userUpdated = user as UserDTO;
+      if (updatedData.name) userUpdated.name = updatedData.name;
 
-      await updateUser(userUpdated!);
+      await updateUser(userUpdated);
       showToast.success("Atualizado com sucesso");
     } catch (error) {
       console.error("screens/Profile.tsx > handleProfileUpdate > error", error);
-      if (error instanceof AppError) {
-        return showToast.error(error.message);
-      } else {
-        return showToast.error("Algo deu errado");
-      }
+
+      if (error instanceof AppError) return showToast.error(error.message);
+      else return showToast.error("Algo deu errado");
     } finally {
       setIsSubmittingUpdate(false);
     }
@@ -160,7 +200,7 @@ export function Profile() {
     <>
       <ScreensHeader title="Perfil" />
       <Container>
-        {loading ? (
+        {avatarLoading ? (
           <SkeletonComponent
             style={{
               marginRight: 8,
@@ -174,7 +214,7 @@ export function Profile() {
         ) : (
           <UserPhoto
             size={PHOTO_SIZE}
-            source={userPhoto ? { uri: userPhoto } : undefined}
+            source={avatarSource || undefined}
             alt="Imagem do usuário"
             marginRight={8}
           />
