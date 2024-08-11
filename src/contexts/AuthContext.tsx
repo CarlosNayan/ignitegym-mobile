@@ -40,10 +40,10 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
   async function cachedUserData() {
     try {
       const userStorage = await storageUserGet();
-      const tokenStorage = await storageAuthTokenGet();
+      const tokens = await storageAuthTokenGet();
 
-      if (tokenStorage && userStorage) {
-        api.defaults.headers.common["Authorization"] = `Bearer ${tokenStorage}`;
+      if (tokens?.token && userStorage) {
+        api.defaults.headers.common["Authorization"] = `Bearer ${tokens.token}`;
 
         setUser(userStorage);
       }
@@ -62,10 +62,10 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
 
       api.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
 
-      if (data.user && data.token) {
+      if (data.user && data.token && data.refresh_token) {
         data.user.avatar = `${api.defaults.baseURL}/avatar/${data.user.avatar}`;
         await storageUserSave(data.user);
-        await storageAuthTokenSave(data.token);
+        await storageAuthTokenSave(data.token, data.refresh_token);
         setUser(data.user);
       }
     } catch (error) {
@@ -105,6 +105,14 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     cachedUserData();
   }, []);
+
+  useEffect(() => {
+    const subscribe = api.registerInterceptTokenMananger(signOut);
+
+    return () => {
+      subscribe();
+    };
+  }, [signOut]);
 
   return (
     <AuthContext.Provider
