@@ -3,14 +3,56 @@ import { Input } from "@components/Input";
 import { ScreensHeader } from "@components/ScreensHeader";
 import { SkeletonComponent } from "@components/SkelletonElement";
 import { UserPhoto } from "@components/UserPhoto";
+import { useToast } from "@contexts/ToastContext";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useAuth } from "@hooks/useAuth";
+import { api } from "@services/api";
+import { AppError } from "@utils/AppError";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
-import { Alert } from "react-native";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import styled, { useTheme } from "styled-components/native";
+import * as yup from "yup";
+
+type FormDataProps = {
+  name: string;
+  email?: string;
+  old_password?: string;
+  password?: string;
+  confirm_password?: string;
+};
+
+const profileSchema = yup.object({
+  name: yup.string().required("Nome obrigatório"),
+  email: yup.string(),
+  old_password: yup
+    .string()
+    .transform((value) => (!!value ? value : undefined)),
+  password: yup
+    .string()
+    .min(6, "A senha deve ter pelo menos 6 digitos")
+    .transform((value) => (!!value ? value : undefined)),
+  confirm_password: yup
+    .string()
+    .transform((value) => (!!value ? value : undefined))
+    .oneOf(
+      [yup.ref("password"), undefined],
+      "A confirmação de senha não confere"
+    )
+    .when("password", {
+      is: (field: any) => field, // Quando 'password' tiver um valor
+      then: (schema) =>
+        schema
+          .required("A confirmação de senha é obrigatória")
+          .min(6, "A confirmação de senha deve ter pelo menos 6 digitos"),
+      otherwise: (schema) => schema.notRequired(), // Quando 'password' não tiver um valor
+    }),
+});
 
 export function Profile() {
   const [loading, setLoading] = useState(false);
+  const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
   const [userPhoto, setUserPhoto] = useState<string | null>(
     "https://github.com/carlosnayan.png"
   );
@@ -18,6 +60,22 @@ export function Profile() {
   const PHOTO_SIZE = 128;
 
   const { colors } = useTheme();
+  const { showToast } = useToast();
+  const { user, updateUser } = useAuth();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormDataProps>({
+    defaultValues: {
+      name: user?.name,
+      email: user?.email,
+      old_password: undefined,
+      password: undefined,
+      confirm_password: undefined,
+    },
+    resolver: yupResolver(profileSchema),
+  });
 
   async function handleUserPhotoSelect() {
     try {
@@ -37,12 +95,14 @@ export function Profile() {
         );
         if (photoInfo && "size" in photoInfo) {
           if (photoInfo.size / 1024 / 1024 > 5) {
-            Alert.alert("Essa imagem é muito grande. Escolha uma de até 5MB.");
+            showToast.error(
+              "Essa imagem é muito grande. Escolha uma de até 5MB."
+            );
             return;
           }
         }
       } else {
-        return Alert.alert("Não foi possível selecionar a imagem.");
+        return showToast.error("Não foi possível selecionar a imagem.");
       }
 
       setUserPhoto(selectedPhoto.assets[0].uri);
@@ -53,6 +113,46 @@ export function Profile() {
       );
     } finally {
       setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (
+      errors.name ||
+      errors.old_password ||
+      errors.password ||
+      errors.confirm_password
+    ) {
+      showToast.error(
+        errors.name?.message ||
+          errors.old_password?.message ||
+          errors.password?.message ||
+          errors.confirm_password?.message ||
+          "Algo deu errado"
+      );
+    }
+  }, [isSubmitting]);
+
+  async function handleProfileUpdate(updatedData: FormDataProps) {
+    try {
+      setIsSubmittingUpdate(true);
+
+      await api.put("/users", updatedData);
+
+      const userUpdated = user;
+      if (updatedData.name) userUpdated!.name = updatedData.name;
+
+      await updateUser(userUpdated!);
+      showToast.success("Atualizado com sucesso");
+    } catch (error) {
+      console.error("screens/Profile.tsx > handleProfileUpdate > error", error);
+      if (error instanceof AppError) {
+        return showToast.error(error.message);
+      } else {
+        return showToast.error("Algo deu errado");
+      }
+    } finally {
+      setIsSubmittingUpdate(false);
     }
   }
 
@@ -82,33 +182,81 @@ export function Profile() {
         <ProfileButton onPress={handleUserPhotoSelect}>
           <TextProfileButton> Alterar imagem</TextProfileButton>
         </ProfileButton>
-        <Input placeholder="Nome" bgColor={colors.gray[600]} width="100%" />
-        <Input
-          placeholder="Email"
-          bgColor={colors.gray[650]}
-          width="100%"
-          editable={false}
+        <Controller
+          control={control}
+          name="name"
+          render={({ field: { value, onChange } }) => (
+            <Input
+              placeholder="Nome"
+              bgColor={colors.gray[600]}
+              width="100%"
+              onChangeText={onChange}
+              value={value}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="email"
+          render={({ field: { value } }) => (
+            <Input
+              placeholder="Email"
+              bgColor={colors.gray[650]}
+              width="100%"
+              editable={false}
+              value={value}
+            />
+          )}
         />
         <Text>Alterar senha</Text>
-        <Input
-          placeholder="Senha antiga"
-          bgColor={colors.gray[600]}
-          width="100%"
-          secureTextEntry
+        <Controller
+          control={control}
+          name="old_password"
+          render={({ field: { onChange } }) => (
+            <Input
+              placeholder="Senha antiga"
+              bgColor={colors.gray[600]}
+              width="100%"
+              secureTextEntry
+              onChangeText={onChange}
+            />
+          )}
         />
-        <Input
-          placeholder="Nova senha"
-          bgColor={colors.gray[600]}
-          width="100%"
-          secureTextEntry
+        <Controller
+          control={control}
+          name="password"
+          render={({ field: { onChange } }) => (
+            <Input
+              placeholder="Nova senha"
+              bgColor={colors.gray[600]}
+              width="100%"
+              secureTextEntry
+              isInvalid={errors.password !== undefined}
+              onChangeText={onChange}
+            />
+          )}
         />
-        <Input
-          placeholder="Confirme a nova senha"
-          bgColor={colors.gray[600]}
-          width="100%"
-          secureTextEntry
+        <Controller
+          control={control}
+          name="confirm_password"
+          render={({ field: { onChange } }) => (
+            <Input
+              placeholder="Confirme a nova senha"
+              bgColor={colors.gray[600]}
+              width="100%"
+              secureTextEntry
+              isInvalid={errors.confirm_password !== undefined}
+              onChangeText={onChange}
+            />
+          )}
         />
-        <Button marginTop={"24px"} title="Salvar alterações" type="SOLID" />
+        <Button
+          marginTop={"24px"}
+          title="Salvar alterações"
+          type="SOLID"
+          isLoading={isSubmitting}
+          onPress={handleSubmit(handleProfileUpdate)}
+        />
       </Container>
     </>
   );

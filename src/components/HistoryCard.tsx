@@ -1,14 +1,14 @@
 import styled from "styled-components/native";
 
-export function HistoryCard() {
+export function HistoryCard({ data }: { data: HistoryDTO }) {
   return (
     <HStack>
       <VStack>
-        <Heading>costas</Heading>
-        <Text>puxada Frontal</Text>
+        <Heading>{data.group}</Heading>
+        <Text>{data.name}</Text>
       </VStack>
 
-      <Text>08:00</Text>
+      <Text>{data.hour}</Text>
     </HStack>
   );
 }

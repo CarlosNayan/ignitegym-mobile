@@ -51,7 +51,7 @@ export function Exercise() {
         exercise_id: exerciseId,
       });
       await new Promise((resolve) => setTimeout(resolve, 1000)); // simulate loading
-      showToast.sucess("Exercício registrado com sucesso");
+      showToast.success("Exercício registrado com sucesso");
       navigation.goBack();
     } catch (error) {
       console.error(

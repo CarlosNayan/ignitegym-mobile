@@ -20,6 +20,7 @@ export type AuthContextDataProps = {
   isLoadingCachedUserData: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  updateUser: (user: UserDTO) => Promise<void>;
 };
 
 type AuthProviderProps = {
@@ -90,6 +91,16 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
       setIsLoadingChachedUserData(false);
     }
   }
+
+  async function updateUserProfile(userUpdated: UserDTO) {
+    try {
+      setUser(userUpdated);
+      await storageUserSave(userUpdated);
+    } catch (error) {
+      console.error("screens/Profile.tsx > updateUserProfile > error", error);
+    }
+  }
+
   useEffect(() => {
     cachedUserData();
   }, []);
@@ -101,6 +112,7 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
         isLoadingCachedUserData,
         signIn: (email, password) => signIn(email, password),
         signOut: () => signOut(),
+        updateUser: (userUpdated) => updateUserProfile(userUpdated),
       }}
     >
       {children}

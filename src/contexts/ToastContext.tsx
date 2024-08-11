@@ -4,7 +4,7 @@ import { Toast } from "@components/Toast";
 interface ToastContextProps {
   showToast: {
     error: (message: string, duration?: number) => void;
-    sucess: (message: string, duration?: number) => void;
+    success: (message: string, duration?: number) => void;
   };
 }
 
@@ -24,7 +24,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
         setVisible(false);
       }, duration); // Duração do toast
     },
-    sucess: (message: string, duration: number = 3000) => {
+    success: (message: string, duration: number = 3000) => {
       setType("SUCCESS");
       setMessage(message);
       setVisible(true);

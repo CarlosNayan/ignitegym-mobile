@@ -38,7 +38,8 @@ const TextInput = styled.TextInput.attrs<{ bgColor: string | undefined }>(
   padding: 10px;
   font-size: ${({ theme }) => theme.fontSizes.md};
   font-family: ${({ theme }) => theme.fonts.body};
-  color: ${({ theme }) => theme.colors.gray[100]};
+  color: ${({ theme, editable }) =>
+    editable ? theme.colors.gray[100] : theme.colors.gray[300]};
   border-width: 1px;
   border-color: ${({ theme, isFocused, isInvalid }) =>
     isFocused
