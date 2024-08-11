@@ -8,7 +8,7 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
 import { api } from "@services/api";
 import React, { useCallback, useEffect } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, Platform, View } from "react-native";
 import styled from "styled-components/native";
 
 export function Home() {
@@ -69,9 +69,9 @@ export function Home() {
           contentContainerStyle={{
             flexDirection: "row",
             maxHeight: 40,
-            marginTop: 24,
+            height: 40,
+            margin: Platform.OS === "ios" ? 12 : 0,
           }}
-          contentInset={{ right: 24, left: 24 }}
           renderItem={({ item }) => (
             <Group
               onPress={() =>
@@ -118,6 +118,7 @@ export function Home() {
 
 const Container = styled.SafeAreaView`
   gap: 24px;
+  padding: 24px;
 `;
 
 const HStack = styled.View`
